@@ -1,0 +1,59 @@
+/* Admin Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Smooth Transitions */
+.admin-card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.admin-sidebar {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  .MuiTableCell-root {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+}
+
+/* Dialog Animations */
+.MuiDialog-paper {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Hover Effects */
+.admin-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}

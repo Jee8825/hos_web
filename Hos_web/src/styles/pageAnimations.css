@@ -1,0 +1,362 @@
+/* Page-Specific Animations */
+
+/* Staggered Card Animations */
+.MuiGrid-item:nth-child(1) .MuiCard-root {
+  animation-delay: 0.1s;
+}
+
+.MuiGrid-item:nth-child(2) .MuiCard-root {
+  animation-delay: 0.2s;
+}
+
+.MuiGrid-item:nth-child(3) .MuiCard-root {
+  animation-delay: 0.3s;
+}
+
+.MuiGrid-item:nth-child(4) .MuiCard-root {
+  animation-delay: 0.4s;
+}
+
+.MuiGrid-item:nth-child(5) .MuiCard-root {
+  animation-delay: 0.5s;
+}
+
+.MuiGrid-item:nth-child(6) .MuiCard-root {
+  animation-delay: 0.6s;
+}
+
+/* Hero Section Animations */
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(50px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Parallax Effect */
+@keyframes parallax {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+
+/* Gradient Animation */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Bounce Effect */
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
+
+/* Rotate Effect */
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Scale Pulse */
+@keyframes scalePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Text Glow */
+@keyframes textGlow {
+  0%, 100% {
+    text-shadow: 0 0 5px rgba(240, 162, 2, 0.5), 0 0 10px rgba(165, 28, 48, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(240, 162, 2, 0.8), 0 0 30px rgba(165, 28, 48, 0.6);
+  }
+}
+
+/* Border Animation */
+@keyframes borderGlow {
+  0%, 100% {
+    border-color: rgba(240, 162, 2, 0.3);
+  }
+  50% {
+    border-color: rgba(240, 162, 2, 0.8);
+  }
+}
+
+/* Slide and Fade */
+@keyframes slideAndFade {
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Zoom In */
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Flip Effect */
+@keyframes flip {
+  from {
+    transform: perspective(400px) rotateY(90deg);
+    opacity: 0;
+  }
+  to {
+    transform: perspective(400px) rotateY(0);
+    opacity: 1;
+  }
+}
+
+/* Shake Effect */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Heartbeat */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  10%, 30% { transform: scale(1.1); }
+  20%, 40% { transform: scale(1); }
+}
+
+/* Wave Effect */
+@keyframes wave {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(-5deg); }
+  75% { transform: translateY(10px) rotate(5deg); }
+}
+
+/* Confetti Effect */
+@keyframes confetti {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(500px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Liquid Fill */
+@keyframes liquidFill {
+  0% { height: 0%; }
+  100% { height: 100%; }
+}
+
+/* Neon Pulse */
+@keyframes neonPulse {
+  0%, 100% {
+    box-shadow: 0 0 5px #F0A202, 0 0 10px #F0A202, 0 0 15px #A51C30;
+  }
+  50% {
+    box-shadow: 0 0 10px #F0A202, 0 0 20px #F0A202, 0 0 30px #A51C30, 0 0 40px #A51C30;
+  }
+}
+
+/* Tilt Shake */
+@keyframes tiltShake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(2deg); }
+  75% { transform: rotate(-2deg); }
+}
+
+/* Blur Pulse */
+@keyframes blurPulse {
+  0%, 100% { filter: blur(0px); }
+  50% { filter: blur(2px); }
+}
+
+/* Rainbow Border */
+@keyframes rainbowBorder {
+  0% { border-color: #A51C30; }
+  25% { border-color: #F0A202; }
+  50% { border-color: #FF7E7E; }
+  75% { border-color: #F0A202; }
+  100% { border-color: #A51C30; }
+}
+
+/* Slide Rotate */
+@keyframes slideRotate {
+  from {
+    transform: translateX(-100%) rotate(-180deg);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Bounce In */
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Flip In X */
+@keyframes flipInX {
+  from {
+    transform: perspective(400px) rotateX(90deg);
+    opacity: 0;
+  }
+  to {
+    transform: perspective(400px) rotateX(0deg);
+    opacity: 1;
+  }
+}
+
+/* Flip In Y */
+@keyframes flipInY {
+  from {
+    transform: perspective(400px) rotateY(90deg);
+    opacity: 0;
+  }
+  to {
+    transform: perspective(400px) rotateY(0deg);
+    opacity: 1;
+  }
+}
+
+/* Light Speed In */
+@keyframes lightSpeedIn {
+  from {
+    transform: translateX(100%) skewX(-30deg);
+    opacity: 0;
+  }
+  60% {
+    transform: skewX(20deg);
+    opacity: 1;
+  }
+  80% {
+    transform: skewX(-5deg);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Roll In */
+@keyframes rollIn {
+  from {
+    transform: translateX(-100%) rotate(-120deg);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Zoom In Down */
+@keyframes zoomInDown {
+  from {
+    transform: scale(0.1) translateY(-1000px);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(0.475) translateY(60px);
+    opacity: 1;
+  }
+}
+
+/* Zoom In Up */
+@keyframes zoomInUp {
+  from {
+    transform: scale(0.1) translateY(1000px);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(0.475) translateY(-60px);
+    opacity: 1;
+  }
+}
+
+/* Hinge Effect */
+@keyframes hinge {
+  0% { transform: rotate(0); transform-origin: top left; }
+  20%, 60% { transform: rotate(80deg); transform-origin: top left; }
+  40%, 80% { transform: rotate(60deg); transform-origin: top left; opacity: 1; }
+  100% { transform: translateY(700px); opacity: 0; }
+}
+
+/* Jack In The Box */
+@keyframes jackInTheBox {
+  from {
+    transform: scale(0.1) rotate(30deg);
+    transform-origin: center bottom;
+    opacity: 0;
+  }
+  50% {
+    transform: rotate(-10deg);
+  }
+  70% {
+    transform: rotate(3deg);
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Rubber Band */
+@keyframes rubberBand {
+  from { transform: scale(1); }
+  30% { transform: scaleX(1.25) scaleY(0.75); }
+  40% { transform: scaleX(0.75) scaleY(1.25); }
+  50% { transform: scaleX(1.15) scaleY(0.85); }
+  65% { transform: scaleX(0.95) scaleY(1.05); }
+  75% { transform: scaleX(1.05) scaleY(0.95); }
+  to { transform: scale(1); }
+}
+
+/* Wobble */
+@keyframes wobble {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-25px) rotate(-5deg); }
+  30% { transform: translateX(20px) rotate(3deg); }
+  45% { transform: translateX(-15px) rotate(-3deg); }
+  60% { transform: translateX(10px) rotate(2deg); }
+  75% { transform: translateX(-5px) rotate(-1deg); }
+}
+
+/* Tada */
+@keyframes tada {
+  from { transform: scale(1); }
+  10%, 20% { transform: scale(0.9) rotate(-3deg); }
+  30%, 50%, 70%, 90% { transform: scale(1.1) rotate(3deg); }
+  40%, 60%, 80% { transform: scale(1.1) rotate(-3deg); }
+  to { transform: scale(1) rotate(0); }
+}

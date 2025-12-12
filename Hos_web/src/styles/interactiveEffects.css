@@ -1,0 +1,334 @@
+/* Interactive Hover and Click Effects */
+
+/* Magnetic Button Effect */
+.magnetic-button {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 3D Card Tilt */
+.tilt-card {
+  transition: transform 0.3s ease;
+}
+
+.tilt-card:hover {
+  transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
+}
+
+/* Parallax Layers */
+.parallax-layer {
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Glassmorphism Effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(165, 28, 48, 0.1);
+}
+
+/* Neumorphism Effect */
+.neuro-effect {
+  background: #f0f0f0;
+  box-shadow: 8px 8px 16px rgba(165, 28, 48, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.9);
+  transition: all 0.3s ease;
+}
+
+.neuro-effect:hover {
+  box-shadow: 4px 4px 8px rgba(165, 28, 48, 0.15), -4px -4px 8px rgba(255, 255, 255, 0.95);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, #A51C30, #F0A202);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animated Gradient Background */
+.animated-gradient {
+  background: linear-gradient(270deg, #A51C30, #F0A202, #FF7E7E);
+  background-size: 600% 600%;
+  animation: gradientShift 8s ease infinite;
+}
+
+/* Spotlight Hover */
+.spotlight-hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.spotlight-hover::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(240, 162, 2, 0.3) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.spotlight-hover:hover::before {
+  opacity: 1;
+}
+
+/* Ripple Click Effect */
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(240, 162, 2, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple-effect:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* Underline Expand */
+.underline-expand {
+  position: relative;
+  display: inline-block;
+}
+
+.underline-expand::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #A51C30, #F0A202);
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+.underline-expand:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+/* Border Glow Pulse */
+.border-glow-pulse {
+  border: 2px solid transparent;
+  animation: borderGlow 2s ease-in-out infinite;
+}
+
+/* Floating Label */
+.floating-label {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Skeleton Loading */
+.skeleton-loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s infinite;
+}
+
+/* Bounce Hover */
+.bounce-hover:hover {
+  animation: bounce 0.6s ease;
+}
+
+/* Shake Error */
+.shake-error {
+  animation: shake 0.5s ease;
+}
+
+/* Pulse Attention */
+.pulse-attention {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Rotate Loader */
+.rotate-loader {
+  animation: rotate 1s linear infinite;
+}
+
+/* Fade In Stagger */
+.fade-in-stagger:nth-child(1) { animation: fadeInUp 0.6s ease 0.1s both; }
+.fade-in-stagger:nth-child(2) { animation: fadeInUp 0.6s ease 0.2s both; }
+.fade-in-stagger:nth-child(3) { animation: fadeInUp 0.6s ease 0.3s both; }
+.fade-in-stagger:nth-child(4) { animation: fadeInUp 0.6s ease 0.4s both; }
+.fade-in-stagger:nth-child(5) { animation: fadeInUp 0.6s ease 0.5s both; }
+.fade-in-stagger:nth-child(6) { animation: fadeInUp 0.6s ease 0.6s both; }
+
+/* Scale Up Hover */
+.scale-up-hover {
+  transition: transform 0.3s ease;
+}
+
+.scale-up-hover:hover {
+  transform: scale(1.05);
+}
+
+/* Slide In From Sides */
+.slide-in-left {
+  animation: slideInLeft 0.6s ease-out;
+}
+
+.slide-in-right {
+  animation: slideInRight 0.6s ease-out;
+}
+
+/* Glow On Hover */
+.glow-hover {
+  transition: filter 0.3s ease;
+}
+
+.glow-hover:hover {
+  filter: drop-shadow(0 0 20px rgba(240, 162, 2, 0.6));
+}
+
+/* Flip Card */
+.flip-card {
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Morph Shape Hover */
+.morph-hover {
+  transition: border-radius 0.5s ease;
+}
+
+.morph-hover:hover {
+  animation: morph 2s ease-in-out infinite;
+}
+
+/* Neon Text */
+.neon-text {
+  animation: textGlow 2s ease-in-out infinite;
+}
+
+/* Progress Bar Fill */
+.progress-fill {
+  animation: progressBar 2s ease-out forwards;
+}
+
+/* Circular Reveal Animation */
+.circular-reveal {
+  animation: circularReveal 0.8s ease-out;
+}
+
+/* Elastic Scale */
+.elastic-scale:hover {
+  animation: elasticBounce 0.6s ease;
+}
+
+/* Breathing Card */
+.breathing-card {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+/* Jello Hover */
+.jello-hover:hover {
+  animation: jello 0.8s ease;
+}
+
+/* Rubber Band Click */
+.rubber-band-click:active {
+  animation: rubberBand 0.8s ease;
+}
+
+/* Wobble Hover */
+.wobble-hover:hover {
+  animation: wobble 0.8s ease;
+}
+
+/* Tada Hover */
+.tada-hover:hover {
+  animation: tada 1s ease;
+}
+
+/* Swing Hover */
+.swing-hover:hover {
+  animation: swing 1s ease;
+}
+
+/* Bounce In Animation */
+.bounce-in {
+  animation: bounceIn 0.8s ease;
+}
+
+/* Flip In X */
+.flip-in-x {
+  animation: flipInX 0.8s ease;
+}
+
+/* Flip In Y */
+.flip-in-y {
+  animation: flipInY 0.8s ease;
+}
+
+/* Light Speed In */
+.light-speed-in {
+  animation: lightSpeedIn 0.8s ease;
+}
+
+/* Roll In */
+.roll-in {
+  animation: rollIn 0.8s ease;
+}
+
+/* Zoom In Down */
+.zoom-in-down {
+  animation: zoomInDown 0.8s ease;
+}
+
+/* Zoom In Up */
+.zoom-in-up {
+  animation: zoomInUp 0.8s ease;
+}
+
+/* Jack In The Box */
+.jack-in-box {
+  animation: jackInTheBox 0.8s ease;
+}
+
+/* Slide Bounce */
+.slide-bounce {
+  animation: slideBounce 0.8s ease;
+}
+
+/* Neon Pulse */
+.neon-pulse {
+  animation: neonPulse 2s ease-in-out infinite;
+}
+
+/* Rainbow Border */
+.rainbow-border {
+  animation: rainbowBorder 3s linear infinite;
+}
+
+/* Tilt Shake */
+.tilt-shake:hover {
+  animation: tiltShake 0.5s ease;
+}
+
+/* Blur Pulse */
+.blur-pulse {
+  animation: blurPulse 2s ease-in-out infinite;
+}

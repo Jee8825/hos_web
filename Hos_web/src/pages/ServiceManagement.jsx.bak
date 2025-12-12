@@ -1,0 +1,405 @@
+import { useState, useEffect } from 'react';
+import { Box, Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Tooltip, MenuItem, Select, FormControl, InputLabel, Alert } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import InfoIcon from '@mui/icons-material/Info';
+import AddIcon from '@mui/icons-material/Add';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import HearingIcon from '@mui/icons-material/Hearing';
+import PregnantWomanIcon from '@mui/icons-material/PregnantWoman';
+import ChildCareIcon from '@mui/icons-material/ChildCare';
+import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
+import SpaIcon from '@mui/icons-material/Spa';
+import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import VaccinesIcon from '@mui/icons-material/Vaccines';
+
+const ServiceManagement = () => {
+  const [services, setServices] = useState([]);
+  const [openAdd, setOpenAdd] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [openDetails, setOpenDetails] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [formData, setFormData] = useState({ title: '', description: '', features: '', icon: 'FavoriteIcon' });
+  const [errors, setErrors] = useState({});
+
+  const iconOptions = [
+    { name: 'FavoriteIcon', component: <FavoriteIcon /> },
+    { name: 'PsychologyIcon', component: <PsychologyIcon /> },
+    { name: 'AccessibilityNewIcon', component: <AccessibilityNewIcon /> },
+    { name: 'VisibilityIcon', component: <VisibilityIcon /> },
+    { name: 'HearingIcon', component: <HearingIcon /> },
+    { name: 'PregnantWomanIcon', component: <PregnantWomanIcon /> },
+    { name: 'ChildCareIcon', component: <ChildCareIcon /> },
+    { name: 'LocalPharmacyIcon', component: <LocalPharmacyIcon /> },
+    { name: 'SpaIcon', component: <SpaIcon /> },
+    { name: 'PrecisionManufacturingIcon', component: <PrecisionManufacturingIcon /> },
+    { name: 'MonitorHeartIcon', component: <MonitorHeartIcon /> },
+    { name: 'VaccinesIcon', component: <VaccinesIcon /> },
+  ];
+
+  useEffect(() => {
+    loadServices();
+  }, []);
+
+  const loadServices = () => {
+    const storedServices = JSON.parse(localStorage.getItem('services') || '[]');
+    if (storedServices.length === 0) {
+      const defaultServices = [
+        { title: 'Cardiology', description: 'Comprehensive cardiac care', features: ['Angioplasty', 'Bypass Surgery'], icon: 'FavoriteIcon' },
+        { title: 'Neurology', description: 'Advanced neurological care', features: ['Stroke Care', 'Brain Surgery'], icon: 'PsychologyIcon' },
+        { title: 'Orthopedics', description: 'Complete orthopedic solutions', features: ['Joint Replacement', 'Sports Injury'], icon: 'AccessibilityNewIcon' },
+      ];
+      localStorage.setItem('services', JSON.stringify(defaultServices));
+      setServices(defaultServices);
+    } else {
+      setServices(storedServices);
+    }
+  };
+
+  const validateServiceForm = () => {
+    const newErrors = {};
+
+    if (!formData.title.trim()) {
+      newErrors.title = 'Service name is required';
+    } else if (formData.title.trim().length < 3) {
+      newErrors.title = 'Service name must be at least 3 characters';
+    } else if (formData.title.trim().length > 100) {
+      newErrors.title = 'Service name must not exceed 100 characters';
+    } else if (!/^[a-zA-Z0-9\s&()-]+$/.test(formData.title.trim())) {
+      newErrors.title = 'Service name contains invalid characters';
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required';
+    } else if (formData.description.trim().length < 10) {
+      newErrors.description = 'Description must be at least 10 characters';
+    } else if (formData.description.trim().length > 500) {
+      newErrors.description = 'Description must not exceed 500 characters';
+    }
+
+    if (!formData.features.trim()) {
+      newErrors.features = 'At least one key service is required';
+    } else {
+      const featuresArray = formData.features.split(',').map(f => f.trim()).filter(f => f);
+      if (featuresArray.length === 0) {
+        newErrors.features = 'At least one key service is required';
+      } else if (featuresArray.some(f => f.length < 2)) {
+        newErrors.features = 'Each key service must be at least 2 characters';
+      } else if (featuresArray.some(f => f.length > 100)) {
+        newErrors.features = 'Each key service must not exceed 100 characters';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleAddService = () => {
+    if (!validateServiceForm()) return;
+
+    const serviceExists = services.some(s => s.title.toLowerCase() === formData.title.trim().toLowerCase());
+    if (serviceExists) {
+      setErrors({ submit: 'A service with this name already exists' });
+      return;
+    }
+
+    const newService = {
+      ...formData,
+      title: formData.title.trim(),
+      description: formData.description.trim(),
+      features: formData.features.split(',').map(f => f.trim()).filter(f => f),
+    };
+    const updatedServices = [...services, newService];
+    localStorage.setItem('services', JSON.stringify(updatedServices));
+    setServices(updatedServices);
+    setFormData({ title: '', description: '', features: '', icon: 'FavoriteIcon' });
+    setErrors({});
+    setOpenAdd(false);
+  };
+
+  const handleEditService = () => {
+    if (!validateServiceForm()) return;
+
+    const updatedServices = services.map(s =>
+      s.title === selectedService.title
+        ? { 
+            ...formData, 
+            title: formData.title.trim(),
+            description: formData.description.trim(),
+            features: formData.features.split(',').map(f => f.trim()).filter(f => f) 
+          }
+        : s
+    );
+    localStorage.setItem('services', JSON.stringify(updatedServices));
+    setServices(updatedServices);
+    setErrors({});
+    setOpenEdit(false);
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+    if (errors[field]) {
+      setErrors({ ...errors, [field]: '' });
+    }
+  };
+
+  const handleDeleteService = () => {
+    const updatedServices = services.filter(s => s.title !== selectedService.title);
+    localStorage.setItem('services', JSON.stringify(updatedServices));
+    setServices(updatedServices);
+    setOpenDelete(false);
+  };
+
+  const openEditDialog = (service) => {
+    setSelectedService(service);
+    setFormData({
+      title: service.title,
+      description: service.description,
+      features: Array.isArray(service.features) ? service.features.join(', ') : '',
+      icon: service.icon,
+    });
+    setOpenEdit(true);
+  };
+
+  const openDeleteDialog = (service) => {
+    setSelectedService(service);
+    setOpenDelete(true);
+  };
+
+  const openDetailsDialog = (service) => {
+    setSelectedService(service);
+    setOpenDetails(true);
+  };
+
+  return (
+    <Container maxWidth="xl" sx={{ py: { xs: 2, md: 4 }, px: { xs: 2, md: 3 } }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: { xs: 3, md: 4 }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+        <Typography variant="h4" sx={{ fontFamily: '"Viga", sans-serif', color: '#A51C30', fontSize: { xs: '1.5rem', md: '2.125rem' } }}>
+          Service Management
+        </Typography>
+        <Button
+          startIcon={<AddIcon />}
+          onClick={() => setOpenAdd(true)}
+          sx={{
+            bgcolor: '#F0A202',
+            color: '#fff',
+            fontFamily: '"Viga", sans-serif',
+            px: { xs: 2, md: 3 },
+            py: { xs: 0.75, md: 1 },
+            borderRadius: '25px',
+            fontSize: { xs: '0.875rem', md: '1rem' },
+            '&:hover': { bgcolor: '#D89002', transform: 'translateY(-2px)' },
+            transition: 'all 0.3s ease',
+          }}
+        >
+          Add Service
+        </Button>
+      </Box>
+
+      <TableContainer component={Paper} sx={{ borderRadius: { xs: '15px', md: '20px' }, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', overflowX: 'auto' }}>
+        <Table>
+          <TableHead sx={{ bgcolor: '#A51C30' }}>
+            <TableRow>
+              <TableCell sx={{ color: '#fff', fontFamily: '"Viga", sans-serif', fontSize: { xs: '0.875rem', md: '1rem' }, py: { xs: 1.5, md: 2 } }}>Service Name</TableCell>
+              <TableCell sx={{ color: '#fff', fontFamily: '"Viga", sans-serif', fontSize: { xs: '0.875rem', md: '1rem' }, py: { xs: 1.5, md: 2 }, display: { xs: 'none', md: 'table-cell' } }}>Description</TableCell>
+              <TableCell align="center" sx={{ color: '#fff', fontFamily: '"Viga", sans-serif', fontSize: { xs: '0.875rem', md: '1rem' }, py: { xs: 1.5, md: 2 } }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {services.map((service, index) => (
+              <TableRow key={index} sx={{ '&:hover': { bgcolor: '#FF7E7E10' } }}>
+                <TableCell sx={{ fontFamily: '"Noto Serif Georgian", serif', fontSize: { xs: '0.875rem', md: '1rem' }, py: { xs: 1, md: 1.5 } }}>
+                  <Box>{service.title}</Box>
+                  <Box sx={{ display: { xs: 'block', md: 'none' }, fontSize: '0.75rem', color: '#666', mt: 0.5 }}>{service.description.substring(0, 40)}...</Box>
+                </TableCell>
+                <TableCell sx={{ fontFamily: '"Noto Serif Georgian", serif', fontSize: { xs: '0.875rem', md: '1rem' }, py: { xs: 1, md: 1.5 }, display: { xs: 'none', md: 'table-cell' } }}>{service.description.substring(0, 50)}...</TableCell>
+                <TableCell align="center" sx={{ py: { xs: 1, md: 1.5 } }}>
+                  <Tooltip title="Show Details">
+                    <IconButton onClick={() => openDetailsDialog(service)} sx={{ color: '#F0A202' }}>
+                      <InfoIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Edit">
+                    <IconButton onClick={() => openEditDialog(service)} sx={{ color: '#666' }}>
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <IconButton onClick={() => openDeleteDialog(service)} sx={{ color: '#A51C30' }}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Tooltip>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Dialog open={openAdd} onClose={() => { setOpenAdd(false); setErrors({}); }} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: { xs: '15px', md: '20px' }, m: { xs: 2, md: 3 }, maxHeight: { xs: '90vh', md: 'auto' } } }}>
+        <DialogTitle sx={{ fontFamily: '"Viga", sans-serif', color: '#A51C30', fontSize: { xs: '1.25rem', md: '1.5rem' }, pb: { xs: 1, md: 2 } }}>Add New Service</DialogTitle>
+        <DialogContent sx={{ px: { xs: 2, md: 3 } }}>
+          {errors.submit && (
+            <Alert severity="error" sx={{ mt: 2, mb: 2, borderRadius: '10px' }}>
+              {errors.submit}
+            </Alert>
+          )}
+          <TextField
+            fullWidth
+            label="Service Name"
+            value={formData.title}
+            onChange={(e) => handleInputChange('title', e.target.value)}
+            error={!!errors.title}
+            helperText={errors.title}
+            sx={{ mt: 2, mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="Description"
+            multiline
+            rows={3}
+            value={formData.description}
+            onChange={(e) => handleInputChange('description', e.target.value)}
+            error={!!errors.description}
+            helperText={errors.description}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="Key Services (comma separated)"
+            value={formData.features}
+            onChange={(e) => handleInputChange('features', e.target.value)}
+            error={!!errors.features}
+            helperText={errors.features}
+            placeholder="e.g., Surgery, Consultation, Emergency Care"
+            sx={{ mb: 2 }}
+          />
+          <FormControl fullWidth>
+            <InputLabel>Icon</InputLabel>
+            <Select
+              value={formData.icon}
+              onChange={(e) => handleInputChange('icon', e.target.value)}
+              label="Icon"
+            >
+              {iconOptions.map((icon) => (
+                <MenuItem key={icon.name} value={icon.name}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {icon.component}
+                    <span>{icon.name}</span>
+                  </Box>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => { setOpenAdd(false); setErrors({}); }} sx={{ color: '#666' }}>Cancel</Button>
+          <Button onClick={handleAddService} sx={{ bgcolor: '#A51C30', color: '#fff', '&:hover': { bgcolor: '#8B1628' } }}>Add</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openEdit} onClose={() => { setOpenEdit(false); setErrors({}); }} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: { xs: '15px', md: '20px' }, m: { xs: 2, md: 3 }, maxHeight: { xs: '90vh', md: 'auto' } } }}>
+        <DialogTitle sx={{ fontFamily: '"Viga", sans-serif', color: '#A51C30', fontSize: { xs: '1.25rem', md: '1.5rem' }, pb: { xs: 1, md: 2 } }}>Edit Service</DialogTitle>
+        <DialogContent sx={{ px: { xs: 2, md: 3 } }}>
+          {errors.submit && (
+            <Alert severity="error" sx={{ mt: 2, mb: 2, borderRadius: '10px' }}>
+              {errors.submit}
+            </Alert>
+          )}
+          <TextField
+            fullWidth
+            label="Service Name"
+            value={formData.title}
+            onChange={(e) => handleInputChange('title', e.target.value)}
+            error={!!errors.title}
+            helperText={errors.title}
+            sx={{ mt: 2, mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="Description"
+            multiline
+            rows={3}
+            value={formData.description}
+            onChange={(e) => handleInputChange('description', e.target.value)}
+            error={!!errors.description}
+            helperText={errors.description}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            fullWidth
+            label="Key Services (comma separated)"
+            value={formData.features}
+            onChange={(e) => handleInputChange('features', e.target.value)}
+            error={!!errors.features}
+            helperText={errors.features}
+            placeholder="e.g., Surgery, Consultation, Emergency Care"
+            sx={{ mb: 2 }}
+          />
+          <FormControl fullWidth>
+            <InputLabel>Icon</InputLabel>
+            <Select
+              value={formData.icon}
+              onChange={(e) => handleInputChange('icon', e.target.value)}
+              label="Icon"
+            >
+              {iconOptions.map((icon) => (
+                <MenuItem key={icon.name} value={icon.name}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {icon.component}
+                    <span>{icon.name}</span>
+                  </Box>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => { setOpenEdit(false); setErrors({}); }} sx={{ color: '#666' }}>Cancel</Button>
+          <Button onClick={handleEditService} sx={{ bgcolor: '#A51C30', color: '#fff', '&:hover': { bgcolor: '#8B1628' } }}>Update</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openDetails} onClose={() => setOpenDetails(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: { xs: '15px', md: '20px' }, m: { xs: 2, md: 3 } } }}>
+        <DialogTitle sx={{ fontFamily: '"Viga", sans-serif', color: '#A51C30', fontSize: { xs: '1.25rem', md: '1.5rem' }, pb: { xs: 1, md: 2 } }}>Service Details</DialogTitle>
+        <DialogContent sx={{ px: { xs: 2, md: 3 } }}>
+          {selectedService && (
+            <Box sx={{ py: 2 }}>
+              <Typography sx={{ fontFamily: '"Noto Serif Georgian", serif', mb: 2, fontSize: { xs: '0.875rem', md: '1rem' } }}><strong>Title:</strong> {selectedService.title}</Typography>
+              <Typography sx={{ fontFamily: '"Noto Serif Georgian", serif', mb: 2, fontSize: { xs: '0.875rem', md: '1rem' } }}><strong>Description:</strong> {selectedService.description}</Typography>
+              <Typography sx={{ fontFamily: '"Noto Serif Georgian", serif', mb: 1, fontSize: { xs: '0.875rem', md: '1rem' } }}><strong>Key Features:</strong></Typography>
+              <Box component="ul" sx={{ pl: 3 }}>
+                {Array.isArray(selectedService.features) && selectedService.features.map((feature, idx) => (
+                  <Typography component="li" key={idx} sx={{ fontFamily: '"Noto Serif Georgian", serif', fontSize: { xs: '0.875rem', md: '1rem' } }}>{feature}</Typography>
+                ))}
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => setOpenDetails(false)} sx={{ bgcolor: '#A51C30', color: '#fff', '&:hover': { bgcolor: '#8B1628' } }}>OK</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={openDelete} onClose={() => setOpenDelete(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: { xs: '15px', md: '20px' }, m: { xs: 2, md: 3 } } }}>
+        <DialogTitle sx={{ fontFamily: '"Viga", sans-serif', color: '#A51C30', fontSize: { xs: '1.25rem', md: '1.5rem' }, pb: { xs: 1, md: 2 } }}>Confirm Delete</DialogTitle>
+        <DialogContent sx={{ px: { xs: 2, md: 3 } }}>
+          <Typography sx={{ fontFamily: '"Noto Serif Georgian", serif', fontSize: { xs: '0.875rem', md: '1rem' } }}>
+            Are you sure you want to delete <strong>{selectedService?.title}</strong>?
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => setOpenDelete(false)} sx={{ color: '#666' }}>Cancel</Button>
+          <Button onClick={handleDeleteService} sx={{ bgcolor: '#A51C30', color: '#fff', '&:hover': { bgcolor: '#8B1628' } }}>Delete</Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
+  );
+};
+
+export default ServiceManagement;

@@ -1,0 +1,504 @@
+/* Global Animations and Keyframes */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(240, 162, 2, 0.3), 0 0 10px rgba(165, 28, 48, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(240, 162, 2, 0.6), 0 0 30px rgba(165, 28, 48, 0.4);
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Card Effects */
+.MuiCard-root {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.MuiCard-root:hover {
+  box-shadow: 0 12px 40px rgba(165, 28, 48, 0.35), 0 6px 20px rgba(240, 162, 2, 0.25) !important;
+  transform: translateY(-8px) scale(1.02) !important;
+}
+
+/* Button Effects */
+.MuiButton-root {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.MuiButton-root::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.MuiButton-root:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.MuiButton-contained:hover {
+  box-shadow: 0 8px 30px rgba(165, 28, 48, 0.5), 0 4px 15px rgba(240, 162, 2, 0.4) !important;
+  transform: translateY(-3px) !important;
+}
+
+.MuiButton-root:active {
+  transform: translateY(-1px) !important;
+}
+
+/* Input Effects */
+.MuiOutlinedInput-root {
+  transition: all 0.3s ease !important;
+}
+
+.MuiOutlinedInput-root.Mui-focused {
+  box-shadow: 0 0 20px rgba(240, 162, 2, 0.4), 0 0 10px rgba(165, 28, 48, 0.2) !important;
+  transform: scale(1.01);
+}
+
+.MuiOutlinedInput-root:hover {
+  box-shadow: 0 0 10px rgba(240, 162, 2, 0.2) !important;
+}
+
+/* Dialog Effects */
+.MuiDialog-paper {
+  box-shadow: 0 15px 50px rgba(165, 28, 48, 0.3), 0 8px 25px rgba(240, 162, 2, 0.2) !important;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* Icon Animations */
+.MuiSvgIcon-root {
+  transition: all 0.3s ease;
+}
+
+.MuiCard-root:hover .MuiSvgIcon-root,
+.MuiButton-root:hover .MuiSvgIcon-root {
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* Typography Effects */
+.MuiTypography-root {
+  transition: color 0.3s ease;
+}
+
+/* Link Hover Effects */
+a {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #A51C30, #F0A202);
+  transition: width 0.3s ease;
+}
+
+a:hover::after {
+  width: 100%;
+}
+
+/* Box Effects */
+.MuiBox-root[role="button"]:hover,
+.MuiBox-root.clickable:hover {
+  box-shadow: 0 8px 30px rgba(165, 28, 48, 0.2), 0 0 15px rgba(240, 162, 2, 0.1) !important;
+}
+
+/* Backdrop Blur */
+.MuiBackdrop-root {
+  backdrop-filter: blur(8px) !important;
+  background-color: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection Color */
+::selection {
+  background-color: rgba(240, 162, 2, 0.3);
+  color: #A51C30;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #A51C30, #F0A202);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #8B1628, #D89002);
+}
+
+/* Paper Effects */
+.MuiPaper-root {
+  transition: all 0.3s ease-in-out !important;
+}
+
+/* Menu Animations */
+.MuiMenu-paper {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* Chip Effects */
+.MuiChip-root {
+  transition: all 0.3s ease !important;
+}
+
+.MuiChip-root:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(165, 28, 48, 0.3);
+}
+
+/* Avatar Effects */
+.MuiAvatar-root {
+  transition: all 0.3s ease;
+}
+
+.MuiAvatar-root:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 20px rgba(240, 162, 2, 0.4);
+}
+
+/* Divider Animation */
+.MuiDivider-root {
+  transition: all 0.3s ease;
+}
+
+/* Accordion Effects */
+.MuiAccordion-root {
+  transition: all 0.3s ease !important;
+}
+
+.MuiAccordion-root:hover {
+  box-shadow: 0 4px 20px rgba(165, 28, 48, 0.2) !important;
+}
+
+/* Tab Effects */
+.MuiTab-root {
+  transition: all 0.3s ease !important;
+}
+
+.MuiTab-root:hover {
+  transform: translateY(-2px);
+}
+
+/* Tooltip Animation */
+.MuiTooltip-tooltip {
+  animation: fadeInUp 0.2s ease-out;
+}
+
+/* Advanced Hover Effects */
+.MuiCard-root::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(165, 28, 48, 0.1), rgba(240, 162, 2, 0.1));
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.MuiCard-root:hover::after {
+  opacity: 1;
+}
+
+/* Gradient Border Animation */
+@keyframes borderRotate {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Floating Animation for Icons */
+.MuiSvgIcon-fontSizeLarge {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Text Shimmer Effect */
+@keyframes textShimmer {
+  0% { background-position: -500px 0; }
+  100% { background-position: 500px 0; }
+}
+
+.shimmer-text {
+  background: linear-gradient(90deg, #A51C30 0%, #F0A202 50%, #A51C30 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textShimmer 3s linear infinite;
+}
+
+/* Particle Effect */
+@keyframes particle {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Magnetic Effect */
+.magnetic {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Neon Glow */
+@keyframes neonGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px rgba(240, 162, 2, 0.5)) drop-shadow(0 0 10px rgba(165, 28, 48, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(240, 162, 2, 0.8)) drop-shadow(0 0 30px rgba(165, 28, 48, 0.6));
+  }
+}
+
+/* Perspective Tilt */
+.MuiCard-root {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+/* Loading Skeleton Shimmer */
+@keyframes skeletonShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s infinite;
+}
+
+/* Blur Reveal */
+@keyframes blurReveal {
+  from {
+    filter: blur(10px);
+    opacity: 0;
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+/* Elastic Bounce */
+@keyframes elasticBounce {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.1); }
+  50% { transform: scale(0.95); }
+  75% { transform: scale(1.05); }
+}
+
+/* Typewriter Effect */
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* Glitch Effect */
+@keyframes glitch {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+}
+
+/* Morph Shape */
+@keyframes morph {
+  0%, 100% { border-radius: 20px; }
+  25% { border-radius: 40px 20px; }
+  50% { border-radius: 20px 40px; }
+  75% { border-radius: 40px 30px; }
+}
+
+/* Color Shift */
+@keyframes colorShift {
+  0%, 100% { filter: hue-rotate(0deg); }
+  50% { filter: hue-rotate(20deg); }
+}
+
+/* Expand Width */
+@keyframes expandWidth {
+  from { width: 0; opacity: 0; }
+  to { width: 100%; opacity: 1; }
+}
+
+/* Spotlight Effect */
+@keyframes spotlight {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+/* 3D Flip */
+@keyframes flip3D {
+  0% { transform: perspective(400px) rotateY(0); }
+  100% { transform: perspective(400px) rotateY(360deg); }
+}
+
+/* Breathing Effect */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.03); opacity: 0.9; }
+}
+
+/* Slide Bounce */
+@keyframes slideBounce {
+  0% { transform: translateX(-100%); }
+  60% { transform: translateX(10px); }
+  80% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+/* Fade Slide Up */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Menu Item Hover */
+.MuiMenuItem-root {
+  transition: all 0.3s ease !important;
+}
+
+.MuiMenuItem-root:hover {
+  background: linear-gradient(90deg, rgba(165, 28, 48, 0.1), rgba(240, 162, 2, 0.1)) !important;
+  transform: translateX(5px);
+  border-left: 3px solid #F0A202;
+}
+
+/* TextField Label Animation */
+.MuiInputLabel-root {
+  transition: all 0.3s ease !important;
+}
+
+.MuiInputLabel-root.Mui-focused {
+  transform: translate(14px, -9px) scale(0.75) !important;
+  color: #F0A202 !important;
+}
+
+/* Progress Bar Animation */
+@keyframes progressBar {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+/* Circular Reveal */
+@keyframes circularReveal {
+  from {
+    clip-path: circle(0% at 50% 50%);
+  }
+  to {
+    clip-path: circle(100% at 50% 50%);
+  }
+}
+
+/* Swing Effect */
+@keyframes swing {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(5deg); }
+  75% { transform: rotate(-5deg); }
+}
+
+/* Jello Effect */
+@keyframes jello {
+  0%, 100% { transform: skewX(0deg) skewY(0deg); }
+  25% { transform: skewX(-5deg) skewY(-5deg); }
+  50% { transform: skewX(5deg) skewY(5deg); }
+  75% { transform: skewX(-3deg) skewY(-3deg); }
+}

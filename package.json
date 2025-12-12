@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.6",
+    "@mui/joy": "^5.0.0-beta.52",
+    "@mui/lab": "^7.0.1-beta.20",
+    "@mui/material": "^7.3.6",
+    "@mui/system": "^7.3.6",
+    "@mui/x-charts": "^8.21.0",
+    "@mui/x-data-grid": "^8.21.0",
+    "@mui/x-date-pickers": "^8.21.0",
+    "bootstrap": "^5.3.8",
+    "force": "^0.0.3"
+  }
+}
