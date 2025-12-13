@@ -139,8 +139,7 @@ const AdminDashboard = () => {
               borderRadius: { xs: '15px', md: '20px' },
               boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
               p: { xs: 2, md: 3, lg: 4 },
-              height: '100%',
-              minHeight: { xs: 350, md: 400, lg: 500 },
+              height: { xs: 350, md: 400, lg: 500 },
             }}
           >
             <Typography
@@ -154,16 +153,18 @@ const AdminDashboard = () => {
             >
               Monthly User Logs
             </Typography>
-            <ResponsiveContainer width="100%" height="85%">
-              <LineChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" style={{ fontSize: '0.875rem' }} />
-                <YAxis style={{ fontSize: '0.875rem' }} />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="logs" stroke="#F0A202" strokeWidth={3} />
-              </LineChart>
-            </ResponsiveContainer>
+            <Box sx={{ width: '100%', height: 'calc(100% - 60px)' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" style={{ fontSize: '0.875rem' }} />
+                  <YAxis style={{ fontSize: '0.875rem' }} />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="logs" stroke="#F0A202" strokeWidth={3} />
+                </LineChart>
+              </ResponsiveContainer>
+            </Box>
           </Card>
         </Grid>
 
@@ -173,8 +174,7 @@ const AdminDashboard = () => {
               borderRadius: { xs: '15px', md: '20px' },
               boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
               p: { xs: 2, md: 3, lg: 4 },
-              height: '100%',
-              minHeight: { xs: 350, md: 400, lg: 500 },
+              height: { xs: 350, md: 400, lg: 500 },
             }}
           >
             <Typography
@@ -188,16 +188,18 @@ const AdminDashboard = () => {
             >
               Monthly Appointments
             </Typography>
-            <ResponsiveContainer width="100%" height="85%">
-              <BarChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" style={{ fontSize: '0.875rem' }} />
-                <YAxis style={{ fontSize: '0.875rem' }} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="appointments" fill="#A51C30" />
-              </BarChart>
-            </ResponsiveContainer>
+            <Box sx={{ width: '100%', height: 'calc(100% - 60px)' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" style={{ fontSize: '0.875rem' }} />
+                  <YAxis style={{ fontSize: '0.875rem' }} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="appointments" fill="#A51C30" />
+                </BarChart>
+              </ResponsiveContainer>
+            </Box>
           </Card>
         </Grid>
       </Grid>
