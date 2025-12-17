@@ -52,6 +52,29 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
+  // Auto-logout for inactive users (not admins) after 10 minutes
+  useEffect(() => {
+    if (!user || user.role === 'admin') return;
+
+    let timeout;
+    const resetTimer = () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        logout();
+        window.location.href = '/';
+      }, 10 * 60 * 1000); // 10 minutes
+    };
+
+    const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach(event => window.addEventListener(event, resetTimer));
+    resetTimer();
+
+    return () => {
+      clearTimeout(timeout);
+      events.forEach(event => window.removeEventListener(event, resetTimer));
+    };
+  }, [user]);
+
   return (
     <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
       {children}
