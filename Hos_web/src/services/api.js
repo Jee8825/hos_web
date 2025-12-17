@@ -34,6 +34,8 @@ export const getAppointments = (status) => api.get('/appointments', { params: { 
 export const createAppointment = (data) => api.post('/appointments', data);
 export const updateAppointment = (id, data) => api.put(`/appointments/${id}`, data);
 export const deleteAppointment = (id) => api.delete(`/appointments/${id}`);
+export const bulkUpdateAppointments = (appointmentIds, updateData) => 
+  api.put('/appointments/bulk/update', { appointmentIds, updateData });
 
 // Messages
 export const getMessages = () => api.get('/messages');

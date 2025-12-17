@@ -135,6 +135,8 @@ npm run dev
 
 - **[DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)** - Complete deployment instructions
 - **[BEST_PRACTICES.md](./BEST_PRACTICES.md)** - Best practices and error prevention
+- **[VALIDATION_SYNC.md](./VALIDATION_SYNC.md)** - Form validation rules and synchronization
+- **[LOCALSTORAGE_GUIDE.md](./LOCALSTORAGE_GUIDE.md)** - LocalStorage implementation and usage
 
 ## 🔑 Key Features Explained
 

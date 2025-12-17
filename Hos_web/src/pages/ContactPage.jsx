@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { createMessage } from '../services/api';
 import { getRandomBanner } from '../utils/bannerUtils';
+import { saveFormDraft, getFormDraft, clearFormDraft, getUserInfo, updateUserInfo } from '../utils/localStorage';
+import PrefilledBadge from '../components/PrefilledBadge';
 import {
   Box,
   Container,
@@ -20,16 +22,30 @@ import SendIcon from '@mui/icons-material/Send';
 
 const ContactPage = () => {
   const [bannerImage] = useState(getRandomBanner());
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: '',
+  const [formData, setFormData] = useState(() => {
+    const draft = getFormDraft('contact');
+    if (draft) return draft;
+    
+    // Prefill with saved user info
+    const userInfo = getUserInfo();
+    const hasPrefill = !!(userInfo?.name || userInfo?.email || userInfo?.phone);
+    
+    if (hasPrefill) {
+      setTimeout(() => setIsPrefilled(true), 100);
+    }
+    
+    return {
+      name: userInfo?.name || '',
+      email: userInfo?.email || '',
+      phone: userInfo?.phone || '',
+      subject: '',
+      message: '',
+    };
   });
 
   const [errors, setErrors] = useState({});
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [isPrefilled, setIsPrefilled] = useState(false);
 
   const validateField = (name, value) => {
     let error = '';
@@ -54,8 +70,11 @@ const ContactPage = () => {
       case 'phone':
         if (!value.trim()) {
           error = 'Phone number is required';
-        } else if (!/^[6-9]\d{9}$/.test(value)) {
-          error = 'Please enter a valid 10-digit Indian phone number';
+        } else {
+          const cleanPhone = value.replace(/[\s\-()]/g, '');
+          if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+            error = 'Phone number must be 10 digits starting with 6, 7, 8, or 9';
+          }
         }
         break;
 
@@ -82,10 +101,12 @@ const ContactPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
+    const newFormData = {
+      ...formData,
       [name]: value,
-    }));
+    };
+    setFormData(newFormData);
+    saveFormDraft('contact', newFormData);
 
     const error = validateField(name, value);
     setErrors((prev) => ({
@@ -109,6 +130,13 @@ const ContactPage = () => {
 
     if (Object.keys(newErrors).length === 0) {
       try {
+        // Save user info for future prefill
+        updateUserInfo({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone
+        });
+        
         await createMessage({
           name: formData.name,
           email: formData.email,
@@ -116,6 +144,7 @@ const ContactPage = () => {
           message: `${formData.subject}: ${formData.message}`
         });
         setSubmitSuccess(true);
+        clearFormDraft('contact');
         setTimeout(() => {
           setFormData({
             name: '',
@@ -272,16 +301,18 @@ const ContactPage = () => {
         <Container maxWidth="lg">
           <Grid container spacing={6}>
             <Grid item xs={12} md={6}>
-              <Typography
-                variant="h3"
-                sx={{
-                  fontFamily: '"Viga", sans-serif',
-                  color: '#A51C30',
-                  mb: 3,
-                }}
-              >
-                Send Us a Message
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontFamily: '"Viga", sans-serif',
+                    color: '#A51C30',
+                  }}
+                >
+                  Send Us a Message
+                </Typography>
+                <PrefilledBadge show={isPrefilled} />
+              </Box>
               <Typography
                 variant="body1"
                 sx={{

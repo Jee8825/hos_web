@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
-import { createAppointment, getServices } from '../services/api';
+import { createAppointment, getServices, getAppointments } from '../services/api';
 import { getRandomBanner } from '../utils/bannerUtils';
+import { saveFormDraft, getFormDraft, clearFormDraft, getUserInfo, updateUserInfo } from '../utils/localStorage';
+import { detectBookingConflicts, validateAppointmentLimit } from '../utils/conflictDetection';
+import PrefilledBadge from '../components/PrefilledBadge';
 import {
   Box,
   Container,
@@ -25,23 +28,40 @@ import DateRangeIcon from '@mui/icons-material/DateRange';
 
 const AppointmentPage = () => {
   const [bannerImage] = useState(getRandomBanner());
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    dateOfBirth: '',
-    gender: '',
-    location: '',
-    department: '',
-    doctor: '',
-    appointmentDate: '',
-    appointmentTime: '',
-    reason: '',
+  const [formData, setFormData] = useState(() => {
+    // Load draft from localStorage on mount
+    const draft = getFormDraft('appointment');
+    if (draft) return draft;
+    
+    // Prefill with saved user info
+    const userInfo = getUserInfo();
+    const nameParts = userInfo?.name ? userInfo.name.split(' ') : ['', ''];
+    const hasPrefill = !!(userInfo?.name || userInfo?.email || userInfo?.phone);
+    
+    if (hasPrefill) {
+      setTimeout(() => setIsPrefilled(true), 100);
+    }
+    
+    return {
+      firstName: nameParts[0] || '',
+      lastName: nameParts.slice(1).join(' ') || '',
+      email: userInfo?.email || '',
+      phone: userInfo?.phone || '',
+      dateOfBirth: '',
+      gender: '',
+      location: '',
+      department: '',
+      doctor: '',
+      appointmentDate: '',
+      appointmentTime: '',
+      reason: '',
+    };
   });
 
   const [errors, setErrors] = useState({});
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [isPrefilled, setIsPrefilled] = useState(false);
+  const [allAppointments, setAllAppointments] = useState([]);
 
   const locations = [
     'Mumbai (Main Branch)',
@@ -58,15 +78,19 @@ const AppointmentPage = () => {
   const [services, setServices] = useState([]);
 
   useEffect(() => {
-    const fetchServices = async () => {
+    const fetchData = async () => {
       try {
-        const response = await getServices();
-        setServices(response.data);
+        const [servicesResponse, appointmentsResponse] = await Promise.all([
+          getServices(),
+          getAppointments()
+        ]);
+        setServices(servicesResponse.data);
+        setAllAppointments(appointmentsResponse.data);
       } catch (error) {
-        console.error('Error fetching services:', error);
+        console.error('Error fetching data:', error);
       }
     };
-    fetchServices();
+    fetchData();
   }, []);
 
   const timeSlots = [
@@ -111,8 +135,11 @@ const AppointmentPage = () => {
       case 'phone':
         if (!value.trim()) {
           error = 'Phone number is required';
-        } else if (!/^[6-9]\d{9}$/.test(value.replace(/\s/g, ''))) {
-          error = 'Please enter a valid 10-digit Indian phone number starting with 6-9';
+        } else {
+          const cleanPhone = value.replace(/[\s\-()]/g, '');
+          if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+            error = 'Phone number must be 10 digits starting with 6, 7, 8, or 9';
+          }
         }
         break;
 
@@ -176,10 +203,14 @@ const AppointmentPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
+    const newFormData = {
+      ...formData,
       [name]: value,
-    }));
+    };
+    setFormData(newFormData);
+
+    // Auto-save draft every change
+    saveFormDraft('appointment', newFormData);
 
     const error = validateField(name, value);
     setErrors((prev) => ({
@@ -200,11 +231,38 @@ const AppointmentPage = () => {
       }
     });
 
+    // Check appointment limit
+    const userEmail = formData.email;
+    const limitCheck = validateAppointmentLimit(allAppointments, userEmail);
+    if (!limitCheck.isValid) {
+      newErrors.submit = limitCheck.message;
+    }
+
+    // Check for time conflicts (if doctor is specified)
+    if (formData.doctor && formData.appointmentDate && formData.appointmentTime) {
+      const conflicts = detectBookingConflicts(allAppointments, {
+        doctorId: formData.doctor,
+        appointmentDate: formData.appointmentDate,
+        appointmentTime: formData.appointmentTime
+      });
+      
+      if (conflicts.hasConflict) {
+        newErrors.appointmentTime = conflicts.message;
+      }
+    }
+
     console.log('Validation errors:', newErrors);
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
       try {
+        // Save user info for future prefill
+        updateUserInfo({
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          phone: formData.phone
+        });
+        
         await createAppointment({
           name: `${formData.firstName} ${formData.lastName}`,
           email: formData.email,
@@ -212,10 +270,12 @@ const AppointmentPage = () => {
           serviceRef: formData.department,
           date: formData.appointmentDate,
           time: formData.appointmentTime,
+          doctorId: formData.doctor || null,
           details: `DOB: ${formData.dateOfBirth}, Gender: ${formData.gender}, Location: ${formData.location}, Doctor: ${formData.doctor || 'Any'}, Reason: ${formData.reason}`
         });
         
-        setFormData({
+        // Clear form and draft
+        const emptyForm = {
           firstName: '',
           lastName: '',
           email: '',
@@ -228,7 +288,9 @@ const AppointmentPage = () => {
           appointmentDate: '',
           appointmentTime: '',
           reason: '',
-        });
+        };
+        setFormData(emptyForm);
+        clearFormDraft('appointment');
         setErrors({});
         setSubmitSuccess(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -374,6 +436,7 @@ const AppointmentPage = () => {
                       >
                         Personal Information
                       </Typography>
+                      <PrefilledBadge show={isPrefilled} />
                     </Box>
                   </Grid>
 

@@ -1,5 +1,6 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import { login as apiLogin, signup as apiSignup } from '../services/api';
+import { saveLastVisited, clearAll } from '../utils/localStorage';
 
 const AuthContext = createContext();
 
@@ -37,8 +38,19 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    clearAll(); // Clear all app-specific localStorage data
     setUser(null);
   };
+
+  // Track page visits
+  useEffect(() => {
+    if (user) {
+      const trackVisit = () => saveLastVisited(window.location.pathname);
+      trackVisit();
+      window.addEventListener('beforeunload', trackVisit);
+      return () => window.removeEventListener('beforeunload', trackVisit);
+    }
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, login, signup, logout, loading }}>

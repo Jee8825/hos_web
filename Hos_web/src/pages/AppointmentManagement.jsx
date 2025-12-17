@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Box, Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Tooltip, Alert, MenuItem, Tabs, Tab } from '@mui/material';
+import { Box, Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Tooltip, Alert, MenuItem, Tabs, Tab, Checkbox, Chip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import InfoIcon from '@mui/icons-material/Info';
 import AddIcon from '@mui/icons-material/Add';
 import CancelIcon from '@mui/icons-material/Cancel';
+import CheckIcon from '@mui/icons-material/Check';
+import SelectAllIcon from '@mui/icons-material/SelectAll';
 import { getAppointments, createAppointment, updateAppointment, deleteAppointment, getServices } from '../services/api';
+import { bulkApproveAppointments, bulkCancelAppointments } from '../utils/bulkOperations';
+import { detectBookingConflicts } from '../utils/conflictDetection';
 import socketService from '../services/socket';
 
 const AppointmentManagement = () => {
@@ -19,10 +23,14 @@ const AppointmentManagement = () => {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', serviceRef: '', date: '', time: '', status: 'pending', details: '' });
   const [errors, setErrors] = useState({});
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkMessage, setBulkMessage] = useState('');
 
   useEffect(() => {
     loadAppointments(status);
     loadServices();
+    setSelectedIds([]); // Clear selections when status changes
   }, [status]);
 
   const loadAppointments = async (filterStatus) => {
@@ -69,18 +77,50 @@ const AppointmentManagement = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    if (!formData.phone.trim()) newErrors.phone = 'Phone is required';
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Invalid email format';
+    }
+    
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone is required';
+    } else {
+      const cleanPhone = formData.phone.replace(/[\s\-()]/g, '');
+      if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+        newErrors.phone = 'Phone number must be 10 digits starting with 6, 7, 8, or 9';
+      }
+    }
+    
     if (!formData.serviceRef) newErrors.serviceRef = 'Service is required';
     if (!formData.date) newErrors.date = 'Date is required';
     if (!formData.time) newErrors.time = 'Time is required';
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleAddAppointment = async () => {
     if (!validateForm()) return;
+    
+    // Check conflicts before creating
+    const conflicts = detectBookingConflicts(appointments, {
+      doctorId: formData.doctorId,
+      appointmentDate: formData.date,
+      appointmentTime: formData.time
+    });
+    
+    if (conflicts.hasConflict) {
+      setErrors({ submit: conflicts.message });
+      return;
+    }
     
     const userActiveAppointments = appointments.filter(a => 
       a.email.toLowerCase() === formData.email.toLowerCase() && 
@@ -122,6 +162,57 @@ const AppointmentManagement = () => {
     }
   };
 
+  // Bulk operations handlers
+  const handleSelectAll = () => {
+    setSelectedIds(
+      selectedIds.length === appointments.length 
+        ? [] 
+        : appointments.map(apt => apt._id)
+    );
+  };
+
+  const handleSelectAppointment = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) 
+        ? prev.filter(i => i !== id)
+        : [...prev, id]
+    );
+  };
+
+  const handleBulkApprove = async () => {
+    if (selectedIds.length === 0) return;
+    
+    setBulkLoading(true);
+    try {
+      const result = await bulkApproveAppointments(selectedIds);
+      setBulkMessage(`Successfully approved ${result.success} appointments`);
+      setSelectedIds([]);
+      loadAppointments(status); // Reload appointments
+      setTimeout(() => setBulkMessage(''), 3000);
+    } catch (error) {
+      setBulkMessage(`Error: ${error.message}`);
+      setTimeout(() => setBulkMessage(''), 3000);
+    }
+    setBulkLoading(false);
+  };
+
+  const handleBulkCancel = async () => {
+    if (selectedIds.length === 0) return;
+    
+    setBulkLoading(true);
+    try {
+      const result = await bulkCancelAppointments(selectedIds);
+      setBulkMessage(`Successfully cancelled ${result.success} appointments`);
+      setSelectedIds([]);
+      loadAppointments(status); // Reload appointments
+      setTimeout(() => setBulkMessage(''), 3000);
+    } catch (error) {
+      setBulkMessage(`Error: ${error.message}`);
+      setTimeout(() => setBulkMessage(''), 3000);
+    }
+    setBulkLoading(false);
+  };
+
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 2, md: 4 }, px: { xs: 2, md: 3 } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: { xs: 3, md: 4 }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
@@ -149,9 +240,13 @@ const AppointmentManagement = () => {
         <Tabs 
           value={status} 
           onChange={(e, newValue) => setStatus(newValue)} 
-          variant="scrollable"
-          scrollButtons="auto"
-          sx={{ '& .MuiTab-root': { fontFamily: '"Viga", sans-serif' } }}
+          variant="fullWidth"
+          sx={{ 
+            '& .MuiTab-root': { 
+              fontFamily: '"Viga", sans-serif',
+              minWidth: { xs: 80, sm: 120 }
+            }
+          }}
         >
           <Tab label="Pending" value="pending" />
           <Tab label="Postponed" value="postponed" />
@@ -160,10 +255,75 @@ const AppointmentManagement = () => {
         </Tabs>
       </Box>
 
+      {/* Bulk Actions Panel */}
+      {status === 'pending' && appointments.length > 0 && (
+        <Paper sx={{ p: 2, mb: 3, borderRadius: '15px', bgcolor: '#f8f9fa' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+            <Button
+              startIcon={<SelectAllIcon />}
+              onClick={handleSelectAll}
+              size="small"
+              sx={{ fontFamily: '"Viga", sans-serif' }}
+            >
+              {selectedIds.length === appointments.length ? 'Deselect All' : 'Select All'}
+            </Button>
+            
+            <Chip 
+              label={`${selectedIds.length} selected`} 
+              color="primary" 
+              size="small"
+            />
+            
+            <Button
+              startIcon={<CheckIcon />}
+              onClick={handleBulkApprove}
+              disabled={selectedIds.length === 0 || bulkLoading}
+              variant="contained"
+              color="success"
+              size="small"
+              sx={{ fontFamily: '"Viga", sans-serif' }}
+            >
+              Approve ({selectedIds.length})
+            </Button>
+            
+            <Button
+              startIcon={<CancelIcon />}
+              onClick={handleBulkCancel}
+              disabled={selectedIds.length === 0 || bulkLoading}
+              variant="contained"
+              color="error"
+              size="small"
+              sx={{ fontFamily: '"Viga", sans-serif' }}
+            >
+              Cancel ({selectedIds.length})
+            </Button>
+          </Box>
+          
+          {bulkMessage && (
+            <Alert 
+              severity={bulkMessage.includes('Error') ? 'error' : 'success'}
+              sx={{ mt: 2 }}
+            >
+              {bulkMessage}
+            </Alert>
+          )}
+        </Paper>
+      )}
+
       <TableContainer component={Paper} sx={{ borderRadius: { xs: '15px', md: '20px' }, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
         <Table>
           <TableHead sx={{ bgcolor: '#A51C30' }}>
             <TableRow>
+              {status === 'pending' && (
+                <TableCell sx={{ color: '#fff', fontFamily: '"Viga", sans-serif', width: '50px' }}>
+                  <Checkbox
+                    checked={selectedIds.length === appointments.length && appointments.length > 0}
+                    indeterminate={selectedIds.length > 0 && selectedIds.length < appointments.length}
+                    onChange={handleSelectAll}
+                    sx={{ color: '#fff' }}
+                  />
+                </TableCell>
+              )}
               <TableCell sx={{ color: '#fff', fontFamily: '"Viga", sans-serif' }}>Name</TableCell>
               <TableCell sx={{ color: '#fff', fontFamily: '"Viga", sans-serif', display: { xs: 'none', md: 'table-cell' } }}>Phone</TableCell>
               <TableCell sx={{ color: '#fff', fontFamily: '"Viga", sans-serif', display: { xs: 'none', sm: 'table-cell' } }}>Service</TableCell>
@@ -174,35 +334,47 @@ const AppointmentManagement = () => {
           </TableHead>
           <TableBody>
             {appointments.map((appointment) => (
-              <TableRow key={appointment._id} sx={{ '&:hover': { bgcolor: '#FF7E7E10' } }}>
+              <TableRow key={appointment._id} selected={selectedIds.includes(appointment._id)}>
+                {status === 'pending' && (
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedIds.includes(appointment._id)}
+                      onChange={() => handleSelectAppointment(appointment._id)}
+                    />
+                  </TableCell>
+                )}
                 <TableCell sx={{ fontFamily: '"Noto Serif Georgian", serif' }}>{appointment.name}</TableCell>
                 <TableCell sx={{ fontFamily: '"Noto Serif Georgian", serif', display: { xs: 'none', md: 'table-cell' } }}>{appointment.phone}</TableCell>
                 <TableCell sx={{ fontFamily: '"Noto Serif Georgian", serif', display: { xs: 'none', sm: 'table-cell' } }}>{appointment.serviceRef?.title || 'N/A'}</TableCell>
                 <TableCell sx={{ fontFamily: '"Noto Serif Georgian", serif' }}>{appointment.date}</TableCell>
                 <TableCell sx={{ fontFamily: '"Noto Serif Georgian", serif', display: { xs: 'none', md: 'table-cell' } }}>{appointment.time}</TableCell>
-                <TableCell align="center">
-                  <Tooltip title="Details">
-                    <IconButton onClick={() => { setSelectedAppointment(appointment); setOpenDetails(true); }} sx={{ color: '#F0A202' }}>
-                      <InfoIcon />
-                    </IconButton>
-                  </Tooltip>
-                  {appointment.status !== 'cancelled' && appointment.status !== 'completed' && (
-                    <Tooltip title="Cancel">
-                      <IconButton onClick={async () => { await updateAppointment(appointment._id, { status: 'cancelled' }); }} sx={{ color: '#FF7E7E' }}>
-                        <CancelIcon />
+                <TableCell align="center" sx={{ minWidth: '180px' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5 }}>
+                    <Tooltip title="Details">
+                      <IconButton onClick={() => { setSelectedAppointment(appointment); setOpenDetails(true); }} sx={{ color: '#F0A202' }}>
+                        <InfoIcon />
                       </IconButton>
                     </Tooltip>
-                  )}
-                  <Tooltip title="Edit">
-                    <IconButton onClick={() => { setSelectedAppointment(appointment); setFormData({ ...appointment, serviceRef: appointment.serviceRef?._id || '' }); setOpenEdit(true); }} sx={{ color: '#666' }}>
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Delete">
-                    <IconButton onClick={() => { setSelectedAppointment(appointment); setOpenDelete(true); }} sx={{ color: '#A51C30' }}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
+                    {appointment.status !== 'cancelled' && appointment.status !== 'completed' ? (
+                      <Tooltip title="Cancel">
+                        <IconButton onClick={async () => { await updateAppointment(appointment._id, { status: 'cancelled' }); }} sx={{ color: '#FF7E7E' }}>
+                          <CancelIcon />
+                        </IconButton>
+                      </Tooltip>
+                    ) : (
+                      <Box sx={{ width: '40px' }} />
+                    )}
+                    <Tooltip title="Edit">
+                      <IconButton onClick={() => { setSelectedAppointment(appointment); setFormData({ ...appointment, serviceRef: appointment.serviceRef?._id || '' }); setOpenEdit(true); }} sx={{ color: '#666' }}>
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                      <IconButton onClick={() => { setSelectedAppointment(appointment); setOpenDelete(true); }} sx={{ color: '#A51C30' }}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                 </TableCell>
               </TableRow>
             ))}

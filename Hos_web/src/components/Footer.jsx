@@ -1,5 +1,6 @@
-import { Box, Container, Grid, Typography, Link as MuiLink, Divider, IconButton } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Box, Container, Grid, Typography, Link as MuiLink, Divider, IconButton, Button } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -10,6 +11,18 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 
 const Footer = ({ onSignupClick }) => {
+  const { user } = useAuth();
+
+  const navigate = useNavigate();
+
+  const handleButtonClick = () => {
+    if (user) {
+      navigate("/appointment");
+    } else {
+      onSignupClick();
+    }
+  };
+
   const branches = [
     { name: 'Mumbai (Main Branch)', location: 'Andheri West, Mumbai' },
     { name: 'Chennai', location: 'T. Nagar, Chennai' },
@@ -316,8 +329,10 @@ const Footer = ({ onSignupClick }) => {
           >
             © 2024 HavenWell Health. All rights reserved.
           </Typography>
-          <Box
-            onClick={onSignupClick}
+          <Button
+            onClick={handleButtonClick}
+            type="button"
+            variant="contained"
             sx={{
               bgcolor: '#F0A202',
               color: '#fff',
@@ -326,6 +341,8 @@ const Footer = ({ onSignupClick }) => {
               borderRadius: '30px',
               fontFamily: '"Viga", sans-serif',
               cursor: 'pointer',
+              textTransform: 'none',
+              fontSize: '1rem',
               transition: 'all 0.3s ease',
               boxShadow: '0 4px 15px rgba(240, 162, 2, 0.3)',
               '&:hover': {
@@ -335,8 +352,8 @@ const Footer = ({ onSignupClick }) => {
               },
             }}
           >
-            Register Now
-          </Box>
+            {user ? "Book Now" : "Register Now"}
+          </Button>
         </Box>
       </Container>
     </Box>

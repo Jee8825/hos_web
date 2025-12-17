@@ -13,6 +13,39 @@ const MessageManagement = () => {
   const [openDelete, setOpenDelete] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Invalid email format';
+    }
+    
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone is required';
+    } else {
+      const cleanPhone = formData.phone.replace(/[\s\-()]/g, '');
+      if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+        newErrors.phone = 'Phone number must be 10 digits starting with 6, 7, 8, or 9';
+      }
+    }
+    
+    if (!formData.message.trim()) {
+      newErrors.message = 'Message is required';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   useEffect(() => {
     loadMessages();
@@ -44,11 +77,15 @@ const MessageManagement = () => {
   }, []);
 
   const handleEditMessage = async () => {
+    if (!validateForm()) return;
+    
     try {
       await updateMessage(selectedMessage._id, formData);
+      setErrors({});
       setOpenEdit(false);
     } catch (error) {
       console.error('Error updating message:', error);
+      setErrors({ submit: error.response?.data?.message || 'Failed to update message' });
     }
   };
 
@@ -134,10 +171,10 @@ const MessageManagement = () => {
       <Dialog open={openEdit} onClose={() => setOpenEdit(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: '20px' } }}>
         <DialogTitle sx={{ fontFamily: '"Viga", sans-serif', color: '#A51C30' }}>Edit Message</DialogTitle>
         <DialogContent>
-          <TextField fullWidth label="Name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} sx={{ mt: 2, mb: 2 }} />
-          <TextField fullWidth label="Email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} sx={{ mb: 2 }} />
-          <TextField fullWidth label="Phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} sx={{ mb: 2 }} />
-          <TextField fullWidth multiline rows={4} label="Message" value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} error={!!errors.name} helperText={errors.name} sx={{ mt: 2, mb: 2 }} />
+          <TextField fullWidth label="Email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} error={!!errors.email} helperText={errors.email} sx={{ mb: 2 }} />
+          <TextField fullWidth label="Phone" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} error={!!errors.phone} helperText={errors.phone} sx={{ mb: 2 }} />
+          <TextField fullWidth multiline rows={4} label="Message" value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} error={!!errors.message} helperText={errors.message} sx={{ mb: 2 }} />
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
           <Button onClick={() => setOpenEdit(false)} sx={{ color: '#666' }}>Cancel</Button>

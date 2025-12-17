@@ -10,6 +10,8 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import AppRoutes from './router/AppRoutes';
 import LoginSignup from './components/LoginSignup';
+import BackToTop from './components/BackToTop';
+import { useAuth } from './context/AuthContext';
 import './App.css';
 import './styles/glowEffects.css';
 import './styles/pageAnimations.css';
@@ -50,6 +52,7 @@ const AppContent = ({ onLoginClick, onSignupClick }) => {
         <AppRoutes />
       </Box>
       {!isAdminRoute && <Footer onSignupClick={onSignupClick} />}
+      {!isAdminRoute && <BackToTop />}
     </Box>
   );
 };
@@ -60,7 +63,20 @@ function App() {
 
   useEffect(() => {
     socketService.connect();
-    return () => socketService.disconnect();
+    
+    // Keep backend alive on Render free tier (pings every 14 minutes)
+    const keepAlive = setInterval(async () => {
+      try {
+        await fetch(`${import.meta.env.VITE_API_URL?.replace('/api', '')}/api/health`);
+      } catch (error) {
+        console.log('Keep-alive ping failed');
+      }
+    }, 14 * 60 * 1000);
+    
+    return () => {
+      socketService.disconnect();
+      clearInterval(keepAlive);
+    };
   }, []);
 
   const handleLoginOpen = () => {
@@ -71,6 +87,10 @@ function App() {
   const handleSignupOpen = () => {
     setIsLoginMode(false);
     setDialogOpen(true);
+  };
+
+  const handleCloseAndRefresh = () => {
+    setDialogOpen(false);
   };
 
   const handleClose = () => {
@@ -90,6 +110,7 @@ function App() {
           onClose={handleClose}
           maxWidth="sm"
           fullWidth
+          disableRestoreFocus
           PaperProps={{
             sx: {
               borderRadius: '25px',

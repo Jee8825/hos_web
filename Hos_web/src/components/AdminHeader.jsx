@@ -1,16 +1,20 @@
 import { AppBar, Toolbar, Box, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
+import HomeIcon from '@mui/icons-material/Home';
+import { useAuth } from '../context/AuthContext';
 import logo from '../assets/images/hos_logo.jpg';
 
 const AdminHeader = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
+    logout();
     navigate('/');
   };
 
-  const handleLogoClick = () => {
+  const handleHomeClick = () => {
     navigate('/');
   };
 
@@ -25,7 +29,7 @@ const AdminHeader = () => {
       }}
     >
       <Toolbar sx={{ justifyContent: 'space-between', py: { xs: 1.5, md: 2 }, px: { xs: 2, md: 3 } }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 }, cursor: 'pointer' }} onClick={handleLogoClick}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
           <Box
             component="img"
             src={logo}
@@ -56,28 +60,50 @@ const AdminHeader = () => {
           </Typography>
         </Box>
 
-        <Button
-          onClick={handleLogout}
-          startIcon={<LogoutIcon />}
-          sx={{
-            bgcolor: '#A51C30',
-            color: '#fff',
-            fontFamily: '"Viga", sans-serif',
-            px: { xs: 2, md: 3 },
-            py: { xs: 0.75, md: 1 },
-            borderRadius: '25px',
-            fontSize: { xs: '0.875rem', md: '1rem' },
-            minWidth: { xs: 'auto', md: 'auto' },
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              bgcolor: '#8B1628',
-              transform: 'translateY(-2px)',
-              boxShadow: '0 4px 12px rgba(165, 28, 48, 0.3)',
-            },
-          }}
-        >
-          Logout
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            onClick={handleHomeClick}
+            startIcon={<HomeIcon />}
+            sx={{
+              bgcolor: '#F0A202',
+              color: '#fff',
+              fontFamily: '"Viga", sans-serif',
+              px: { xs: 2, md: 3 },
+              py: { xs: 0.75, md: 1 },
+              borderRadius: '25px',
+              fontSize: { xs: '0.875rem', md: '1rem' },
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                bgcolor: '#D89002',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 12px rgba(240, 162, 2, 0.3)',
+              },
+            }}
+          >
+            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Home</Box>
+          </Button>
+          <Button
+            onClick={handleLogout}
+            startIcon={<LogoutIcon />}
+            sx={{
+              bgcolor: '#A51C30',
+              color: '#fff',
+              fontFamily: '"Viga", sans-serif',
+              px: { xs: 2, md: 3 },
+              py: { xs: 0.75, md: 1 },
+              borderRadius: '25px',
+              fontSize: { xs: '0.875rem', md: '1rem' },
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                bgcolor: '#8B1628',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 12px rgba(165, 28, 48, 0.3)',
+              },
+            }}
+          >
+            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Logout</Box>
+          </Button>
+        </Box>
       </Toolbar>
     </AppBar>
   );

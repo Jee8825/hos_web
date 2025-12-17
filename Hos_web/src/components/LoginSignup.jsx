@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { updateUserInfo } from '../utils/localStorage';
 import {
   Box,
   TextField,
@@ -30,6 +31,7 @@ const LoginSignup = ({ isLogin, onSwitchToLogin, onSwitchToSignup, onClose }) =>
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [predictedRole, setPredictedRole] = useState('patient');
 
   const validateEmail = (email) => {
     // RFC 5322 compliant email validation
@@ -44,9 +46,9 @@ const LoginSignup = ({ isLogin, onSwitchToLogin, onSwitchToSignup, onClose }) =>
   };
 
   const validatePhone = (phone) => {
-    // Validates international phone numbers with optional country code
-    const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[-\s.]?[0-9]{1,9}$/;
-    return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
+    // Must be exactly 10 digits starting with 6-9 (Indian standard)
+    const cleanPhone = phone.replace(/[\s\-()]/g, '');
+    return /^[6-9]\d{9}$/.test(cleanPhone);
   };
 
   const validateField = (name, value) => {
@@ -93,7 +95,7 @@ const LoginSignup = ({ isLogin, onSwitchToLogin, onSwitchToSignup, onClose }) =>
         if (!value.trim()) {
           error = 'Phone number is required';
         } else if (!validatePhone(value)) {
-          error = 'Please enter a valid phone number (min 10 digits)';
+          error = 'Phone number must be 10 digits starting with 6, 7, 8, or 9';
         }
         break;
 
@@ -140,23 +142,47 @@ const LoginSignup = ({ isLogin, onSwitchToLogin, onSwitchToSignup, onClose }) =>
     if (Object.keys(newErrors).length === 0) {
       try {
         if (isLogin) {
-          await login({ email: formData.email, password: formData.password });
+          const user = await login({ email: formData.email, password: formData.password });
+          
+          // Save user info for prefill on login too
+          updateUserInfo({
+            name: user.name,
+            email: user.email,
+            phone: formData.phone || ''
+          });
+          
           setSubmitSuccess(true);
           setTimeout(() => {
             onClose();
-            window.location.reload();
+            if (user.role === 'admin') {
+              window.location.href = '/admin';
+            } else {
+              window.location.reload();
+            }
           }, 1500);
         } else {
-          await signup({
+          const user = await signup({
             name: formData.name,
             email: formData.email,
             phone: formData.phone,
             password: formData.password
           });
+          
+          // Save user info for form prefill
+          updateUserInfo({
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone
+          });
+          
           setSubmitSuccess(true);
           setTimeout(() => {
             onClose();
-            window.location.reload();
+            if (user.role === 'admin') {
+              window.location.href = '/admin';
+            } else {
+              window.location.reload();
+            }
           }, 1500);
         }
       } catch (error) {
@@ -311,6 +337,20 @@ const LoginSignup = ({ isLogin, onSwitchToLogin, onSwitchToSignup, onClose }) =>
         {isLogin ? 'Sign in to access your account' : 'Join HavenWell Health today'}
       </Typography>
 
+      {isLogin && (
+        <Alert severity="info" sx={{ mb: 3, borderRadius: '15px', bgcolor: '#F0A20210' }}>
+          <Typography variant="body2" sx={{ fontFamily: '"Noto Serif Georgian", serif', fontWeight: 600, mb: 0.5 }}>
+            Admin Credentials:
+          </Typography>
+          <Typography variant="caption" sx={{ fontFamily: '"Noto Serif Georgian", serif', display: 'block' }}>
+            admin@hospital.com / Admin@123
+          </Typography>
+          <Typography variant="caption" sx={{ fontFamily: '"Noto Serif Georgian", serif', display: 'block' }}>
+            suryasekar626@gmail.com / Surya@123
+          </Typography>
+        </Alert>
+      )}
+
       {submitSuccess && (
         <Alert severity="success" sx={{ mb: 3, borderRadius: '15px' }}>
           {isLogin ? 'Login successful!' : 'Account created successfully!'}
@@ -383,7 +423,7 @@ const LoginSignup = ({ isLogin, onSwitchToLogin, onSwitchToSignup, onClose }) =>
           value={formData.email}
           onChange={handleChange}
           error={!!errors.email}
-          helperText={errors.email}
+          helperText={errors.email || (!isLogin && formData.email ? `Account type: ${predictedRole.charAt(0).toUpperCase() + predictedRole.slice(1)}` : '')}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -397,6 +437,9 @@ const LoginSignup = ({ isLogin, onSwitchToLogin, onSwitchToSignup, onClose }) =>
               borderRadius: '15px',
               fontFamily: '"Noto Serif Georgian", serif',
             },
+            '& .MuiFormHelperText-root': {
+              color: predictedRole !== 'patient' ? '#F0A202' : 'inherit'
+            }
           }}
         />
 

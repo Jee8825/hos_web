@@ -35,7 +35,7 @@ const AppRoutes = () => {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-conditions" element={<TermsConditionsPage />} />
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/admin" element={<ProtectedRoute adminOnly><AdminLayout /></ProtectedRoute>}>
             <Route index element={<AdminDashboard />} />
             <Route path="users" element={<UserManagement />} />
             <Route path="services" element={<ServiceManagement />} />

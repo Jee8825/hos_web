@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import {
   AppBar,
   Toolbar,
@@ -25,9 +26,7 @@ const Header = ({ onLoginClick, onSignupClick }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
-
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  const userEmail = localStorage.getItem('userEmail');
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,7 +36,6 @@ const Header = ({ onLoginClick, onSignupClick }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close drawer when switching to desktop layout
   useEffect(() => {
     if (!isMobile) setMobileOpen(false);
   }, [isMobile]);
@@ -47,8 +45,7 @@ const Header = ({ onLoginClick, onSignupClick }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('userEmail');
+    logout();
     navigate('/');
     setMobileOpen(false);
   };
@@ -59,7 +56,7 @@ const Header = ({ onLoginClick, onSignupClick }) => {
     { label: 'Appointment', path: '/appointment' },
     { label: 'About Us', path: '/about' },
     { label: 'Contact', path: '/contact' },
-    { label: 'Admin', path: '/admin' },
+    ...(user?.role === 'admin' ? [{ label: 'Admin', path: '/admin' }] : []),
   ];
 
   const drawer = (
@@ -94,22 +91,20 @@ const Header = ({ onLoginClick, onSignupClick }) => {
             </ListItemButton>
           </ListItem>
         ))}
-        {isLoggedIn ? (
-          <>
-            <ListItem disablePadding>
-              <ListItemButton onClick={handleLogout}>
-                <ListItemText
-                  primary="Logout"
-                  sx={{
-                    '& .MuiTypography-root': {
-                      fontFamily: '"Viga", sans-serif',
-                      color: '#A51C30',
-                    },
-                  }}
-                />
-              </ListItemButton>
-            </ListItem>
-          </>
+        {user ? (
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleLogout}>
+              <ListItemText
+                primary="Logout"
+                sx={{
+                  '& .MuiTypography-root': {
+                    fontFamily: '"Viga", sans-serif',
+                    color: '#A51C30',
+                  },
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
         ) : (
           <>
             <ListItem disablePadding>
@@ -222,7 +217,7 @@ const Header = ({ onLoginClick, onSignupClick }) => {
                     {item.label}
                   </Button>
                 ))}
-                {isLoggedIn ? (
+                {user ? (
                   <>
                     <Box
                       sx={{
@@ -232,7 +227,7 @@ const Header = ({ onLoginClick, onSignupClick }) => {
                         px: 2,
                       }}
                     >
-                      {userEmail}
+                      {user.email}
                     </Box>
                     <Button
                       onClick={handleLogout}
