@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../model/User');
+const { assignRoleByEmail } = require('../utils/autoRole');
 
 exports.signup = async (req, res) => {
   try {
@@ -10,13 +11,42 @@ exports.signup = async (req, res) => {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
+    // Validate phone number (10 digits starting with 6-9)
+    const cleanPhone = phone.replace(/[\s\-()]/g, '');
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      return res.status(400).json({ message: 'Phone number must be 10 digits starting with 6, 7, 8, or 9.' });
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      return res.status(400).json({ message: 'Password must be at least 8 characters.' });
+    }
+    if (!/[A-Z]/.test(password)) {
+      return res.status(400).json({ message: 'Password must contain at least one uppercase letter.' });
+    }
+    if (!/[a-z]/.test(password)) {
+      return res.status(400).json({ message: 'Password must contain at least one lowercase letter.' });
+    }
+    if (!/\d/.test(password)) {
+      return res.status(400).json({ message: 'Password must contain at least one number.' });
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      return res.status(400).json({ message: 'Password must contain at least one special character.' });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'Email already registered.' });
     }
 
+    const existingPhone = await User.findOne({ phone: cleanPhone });
+    if (existingPhone) {
+      return res.status(400).json({ message: 'Phone number already exists.' });
+    }
+
     const passwordHash = await bcrypt.hash(password, 10);
-    const user = new User({ name, email, passwordHash, phone });
+    const autoRole = assignRoleByEmail(email);
+    const user = new User({ name, email, passwordHash, phone: cleanPhone, role: autoRole });
     await user.save();
 
     const token = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });

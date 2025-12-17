@@ -21,11 +21,17 @@ exports.createMessage = async (req, res) => {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
+    // Validate phone number (10 digits starting with 6-9)
+    const cleanPhone = phone.replace(/[\s\-()]/g, '');
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      return res.status(400).json({ message: 'Phone number must be 10 digits starting with 6, 7, 8, or 9.' });
+    }
+
     let userRef = null;
     const user = await User.findOne({ email });
     if (user) userRef = user._id;
 
-    const newMessage = new Message({ userRef, name, email, phone, message });
+    const newMessage = new Message({ userRef, name, email, phone: cleanPhone, message });
     await newMessage.save();
 
     req.io.emit('message:created', newMessage);
@@ -47,7 +53,13 @@ exports.updateMessage = async (req, res) => {
 
     if (name) msg.name = name;
     if (email) msg.email = email;
-    if (phone) msg.phone = phone;
+    if (phone) {
+      const cleanPhone = phone.replace(/[\s\-()]/g, '');
+      if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+        return res.status(400).json({ message: 'Phone number must be 10 digits starting with 6, 7, 8, or 9.' });
+      }
+      msg.phone = cleanPhone;
+    }
     if (message) msg.message = message;
 
     await msg.save();

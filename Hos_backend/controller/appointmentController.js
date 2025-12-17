@@ -1,5 +1,6 @@
 const Appointment = require('../model/Appointment');
 const User = require('../model/User');
+const { detectBookingConflicts, validateAppointmentLimit } = require('../utils/conflictDetection');
 
 exports.getAllAppointments = async (req, res) => {
   try {
@@ -19,19 +20,32 @@ exports.getAllAppointments = async (req, res) => {
 
 exports.createAppointment = async (req, res) => {
   try {
-    const { name, email, phone, serviceRef, date, time, status, details } = req.body;
+    const { name, email, phone, serviceRef, date, time, status, details, doctorId } = req.body;
 
     if (!name || !email || !phone || !serviceRef || !date || !time) {
       return res.status(400).json({ message: 'All required fields must be provided.' });
     }
 
-    const userAppointmentCount = await Appointment.countDocuments({ 
-      email: { $regex: new RegExp(`^${email}$`, 'i') },
-      status: { $in: ['pending', 'postponed'] }
-    });
-    
-    if (userAppointmentCount >= 6) {
-      return res.status(400).json({ message: 'Maximum 6 active appointments allowed per user. Please complete or cancel existing appointments.' });
+    // Validate phone number (10 digits starting with 6-9)
+    const cleanPhone = phone.replace(/[\s\-()]/g, '');
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      return res.status(400).json({ message: 'Phone number must be 10 digits starting with 6, 7, 8, or 9.' });
+    }
+
+    // Check appointment limit
+    const userAppointments = await Appointment.find({ email: { $regex: new RegExp(`^${email}$`, 'i') } });
+    const limitCheck = validateAppointmentLimit(userAppointments, email);
+    if (!limitCheck.isValid) {
+      return res.status(400).json({ message: limitCheck.message });
+    }
+
+    // Check for conflicts if doctorId provided
+    if (doctorId) {
+      const existingAppointments = await Appointment.find({ doctorId });
+      const conflictCheck = detectBookingConflicts(existingAppointments, { doctorId, appointmentDate: date, appointmentTime: time });
+      if (conflictCheck.hasConflict) {
+        return res.status(400).json({ message: conflictCheck.message });
+      }
     }
 
     const convert12to24 = (time12h) => {
@@ -53,7 +67,7 @@ exports.createAppointment = async (req, res) => {
       userRef,
       name,
       email,
-      phone,
+      phone: cleanPhone,
       serviceRef,
       date,
       time,
@@ -86,11 +100,18 @@ exports.updateAppointment = async (req, res) => {
 
     if (name) appointment.name = name;
     if (email) appointment.email = email;
-    if (phone) appointment.phone = phone;
+    if (phone) {
+      const cleanPhone = phone.replace(/[\s\-()]/g, '');
+      if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+        return res.status(400).json({ message: 'Phone number must be 10 digits starting with 6, 7, 8, or 9.' });
+      }
+      appointment.phone = cleanPhone;
+    }
     if (serviceRef) appointment.serviceRef = serviceRef;
     if (date) appointment.date = date;
     if (time) appointment.time = time;
     if (details !== undefined) appointment.details = details;
+    if (req.body.doctorId) appointment.doctorId = req.body.doctorId;
     
     if (status) {
       appointment.status = status;
@@ -142,5 +163,56 @@ exports.deleteAppointment = async (req, res) => {
     res.json({ message: 'Appointment deleted successfully.', id });
   } catch (error) {
     res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+};
+
+// Bulk operations
+exports.bulkUpdateAppointments = async (req, res) => {
+  try {
+    const { appointmentIds, updateData } = req.body;
+    
+    if (!appointmentIds || !Array.isArray(appointmentIds) || appointmentIds.length === 0) {
+      return res.status(400).json({ message: 'Appointment IDs array is required.' });
+    }
+
+    const results = await Promise.allSettled(
+      appointmentIds.map(async id => {
+        const appointment = await Appointment.findById(id);
+        if (!appointment) return null;
+        
+        // Set timestamps based on status change
+        if (updateData.status === 'completed' && appointment.status !== 'completed') {
+          updateData.completedAt = new Date();
+        }
+        if (updateData.status === 'cancelled' && appointment.status !== 'cancelled') {
+          updateData.cancelledAt = new Date();
+        }
+        
+        return Appointment.findByIdAndUpdate(
+          id, 
+          { ...updateData, updatedAt: new Date() }, 
+          { new: true }
+        ).populate('serviceRef', 'title');
+      })
+    );
+
+    const successful = results.filter(r => r.status === 'fulfilled').map(r => r.value);
+    const failed = results.filter(r => r.status === 'rejected').length;
+
+    // Emit socket events for successful updates
+    successful.forEach(appointment => {
+      if (appointment) {
+        req.io.emit('appointment:updated', appointment);
+      }
+    });
+
+    res.json({
+      success: successful.length,
+      failed,
+      total: appointmentIds.length,
+      appointments: successful
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Bulk update failed.', error: error.message });
   }
 };

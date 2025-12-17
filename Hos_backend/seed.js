@@ -14,8 +14,8 @@ const seedData = async () => {
     await Service.deleteMany({});
     console.log('🗑️  Cleared existing data');
 
-    // Create admin user
-    const adminPassword = await bcrypt.hash('admin123', 10);
+    // Create admin users
+    const adminPassword = await bcrypt.hash('Admin@123', 10);
     const admin = await User.create({
       name: 'Admin User',
       email: 'admin@hospital.com',
@@ -24,6 +24,16 @@ const seedData = async () => {
       role: 'admin'
     });
     console.log('✅ Admin user created:', admin.email);
+
+    const suryaPassword = await bcrypt.hash('Surya@123', 10);
+    const surya = await User.create({
+      name: 'Surya Sekar',
+      email: 'suryasekar626@gmail.com',
+      passwordHash: suryaPassword,
+      phone: '9876543211',
+      role: 'admin'
+    });
+    console.log('✅ Admin user created:', surya.email);
 
     // Create sample user
     const userPassword = await bcrypt.hash('user123', 10);
@@ -66,7 +76,8 @@ const seedData = async () => {
     console.log(`✅ Created ${services.length} sample services`);
 
     console.log('\n📋 Login Credentials:');
-    console.log('Admin: admin@hospital.com / admin123');
+    console.log('Admin 1: admin@hospital.com / Admin@123');
+    console.log('Admin 2: suryasekar626@gmail.com / Surya@123');
     console.log('User: john@example.com / user123');
 
     mongoose.connection.close();

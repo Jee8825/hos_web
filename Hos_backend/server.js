@@ -11,6 +11,7 @@ const serviceRoutes = require('./router/serviceRoutes');
 const appointmentRoutes = require('./router/appointmentRoutes');
 const messageRoutes = require('./router/messageRoutes');
 const { startCleanupJobs } = require('./jobs/cleanupJobs');
+const { cleanupExpiredAppointments, healthCheck } = require('./jobs/lightweightCleanup');
 
 const app = express();
 const server = http.createServer(app);
@@ -54,9 +55,12 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/messages', messageRoutes);
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running' });
-});
+app.get('/api/health', healthCheck);
+
+// Start lightweight cleanup job
+if (process.env.NODE_ENV === 'production') {
+  cleanupExpiredAppointments.start();
+}
 
 // Socket.io connection
 io.on('connection', (socket) => {
