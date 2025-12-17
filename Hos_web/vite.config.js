@@ -14,5 +14,12 @@ export default defineConfig({
         },
       },
     },
+    // Image optimization
+    assetsInlineLimit: 4096, // Inline assets smaller than 4kb
+    minify: 'esbuild', // Use esbuild (faster than terser)
+  },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react-router-dom', '@mui/material'],
   },
 })

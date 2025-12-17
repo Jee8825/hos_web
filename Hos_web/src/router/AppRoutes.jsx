@@ -1,21 +1,38 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import HomePage from '../pages/HomePage';
-import ServicesPage from '../pages/ServicesPage';
-import AboutPage from '../pages/AboutPage';
-import AppointmentPage from '../pages/AppointmentPage';
-import ContactPage from '../pages/ContactPage';
-import PrivacyPolicyPage from '../pages/PrivacyPolicyPage';
-import TermsConditionsPage from '../pages/TermsConditionsPage';
-import AdminLayout from '../pages/AdminLayout';
-import AdminDashboard from '../pages/AdminDashboard';
-import UserManagement from '../pages/UserManagement';
-import ServiceManagement from '../pages/ServiceManagement';
-import AppointmentManagement from '../pages/AppointmentManagement';
-import MessageManagement from '../pages/MessageManagement';
+import { Box, CircularProgress } from '@mui/material';
 import ProtectedRoute from '../components/ProtectedRoute';
 import './transitions.css';
+
+// Lazy load all pages
+const HomePage = lazy(() => import('../pages/HomePage'));
+const ServicesPage = lazy(() => import('../pages/ServicesPage'));
+const AboutPage = lazy(() => import('../pages/AboutPage'));
+const AppointmentPage = lazy(() => import('../pages/AppointmentPage'));
+const ContactPage = lazy(() => import('../pages/ContactPage'));
+const PrivacyPolicyPage = lazy(() => import('../pages/PrivacyPolicyPage'));
+const TermsConditionsPage = lazy(() => import('../pages/TermsConditionsPage'));
+const AdminLayout = lazy(() => import('../pages/AdminLayout'));
+const AdminDashboard = lazy(() => import('../pages/AdminDashboard'));
+const UserManagement = lazy(() => import('../pages/UserManagement'));
+const ServiceManagement = lazy(() => import('../pages/ServiceManagement'));
+const AppointmentManagement = lazy(() => import('../pages/AppointmentManagement'));
+const MessageManagement = lazy(() => import('../pages/MessageManagement'));
+
+// Loading component
+const LoadingFallback = () => (
+  <Box
+    sx={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+    }}
+  >
+    <CircularProgress sx={{ color: '#A51C30' }} size={60} />
+  </Box>
+);
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -25,9 +42,10 @@ const AppRoutes = () => {
   }, [location.pathname]);
 
   return (
-    <TransitionGroup>
-      <CSSTransition key={location.pathname} classNames="fade" timeout={300}>
-        <Routes location={location}>
+    <Suspense fallback={<LoadingFallback />}>
+      <TransitionGroup>
+        <CSSTransition key={location.pathname} classNames="fade" timeout={300}>
+          <Routes location={location}>
           <Route path="/" element={<HomePage />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/about" element={<AboutPage />} />
@@ -42,9 +60,10 @@ const AppRoutes = () => {
             <Route path="appointments" element={<AppointmentManagement />} />
             <Route path="messages" element={<MessageManagement />} />
           </Route>
-        </Routes>
-      </CSSTransition>
-    </TransitionGroup>
+          </Routes>
+        </CSSTransition>
+      </TransitionGroup>
+    </Suspense>
   );
 };
 

@@ -11,6 +11,7 @@ import Footer from './components/Footer';
 import AppRoutes from './router/AppRoutes';
 import LoginSignup from './components/LoginSignup';
 import BackToTop from './components/BackToTop';
+import ErrorBoundary from './components/ErrorBoundary';
 import { useAuth } from './context/AuthContext';
 import './App.css';
 import './styles/glowEffects.css';
@@ -98,10 +99,11 @@ function App() {
   };
 
   return (
-    <AuthProvider>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Router>
+    <ErrorBoundary>
+      <AuthProvider>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Router>
         <AppContent onLoginClick={handleLoginOpen} onSignupClick={handleSignupOpen} />
         
         {/* Login/Signup Dialog */}
@@ -139,9 +141,10 @@ function App() {
             />
           </DialogContent>
         </Dialog>
-        </Router>
-      </ThemeProvider>
-    </AuthProvider>
+          </Router>
+        </ThemeProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
