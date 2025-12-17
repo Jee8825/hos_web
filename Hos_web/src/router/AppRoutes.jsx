@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import HomePage from '../pages/HomePage';
-import ServicesPage from '../pages/Servicespage';
+import ServicesPage from '../pages/ServicesPage';
 import AboutPage from '../pages/AboutPage';
 import AppointmentPage from '../pages/AppointmentPage';
 import ContactPage from '../pages/ContactPage';
