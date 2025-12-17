@@ -5,6 +5,7 @@ services:
     region: oregon
     plan: free
     branch: backend
+    rootDir: Hos_backend
     buildCommand: npm install
     startCommand: node server.js
     envVars:
