@@ -13,7 +13,7 @@ const assignRoleByEmail = (email) => {
     return 'doctor';
   }
   
-  return 'patient'; // default role
+  return 'user'; // default role
 };
 
 const validateEmailDomain = (email, allowedDomains = []) => {
